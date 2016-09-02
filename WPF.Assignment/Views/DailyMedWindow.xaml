@@ -1,0 +1,75 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="WPF.Assignment.MainWindow"
+        Title="DailyMed" Height="500" Width="700" x:Name="wnd1" 
+        WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow" ResizeMode="NoResize" Icon="../Images/ScanIcon.png">
+    <Window.Resources>
+        <DataTemplate x:Key="listViewTemplate">
+            <StackPanel x:Name="stk">
+                <TextBlock Width="Auto" Height="Auto" HorizontalAlignment="Left"><Hyperlink Command="{Binding DataContext.NavigateCommand, ElementName=wnd1}" 
+                                   CommandParameter="{Binding Link}" ToolTip="{Binding Title}"><InlineUIContainer>
+                        		<TextBlock FontWeight="Bold" Text="{Binding Title, FallbackValue=''}"/>
+                        	</InlineUIContainer></Hyperlink></TextBlock>
+                <TextBlock Width="Auto" Height="Auto" HorizontalAlignment="Left" Foreground="Green" FontWeight="Normal" Text="{Binding UnEscapedLink}"/>
+                <TextBlock TextWrapping="WrapWithOverflow" HorizontalAlignment="Left" Width="400" Height="60" Text="{Binding Description}"/>
+            </StackPanel>
+        </DataTemplate>
+        <BooleanToVisibilityConverter x:Key="boolToVisConv"/>
+
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding ShowResultsCommand}"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel>
+            <TextBox HorizontalAlignment="Center" TabIndex="1" BorderBrush="Red" BorderThickness="1.2" 
+                     ToolTip="{Binding SearchToolTipText}" x:Name="txtSearch" VerticalAlignment="Top" 
+    			Width="250" Height="30" Grid.Row="0" Grid.Column="0" Text="{Binding Query, Mode=TwoWay, Delay=800, NotifyOnValidationError=True, 
+                UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Down" Command="{Binding SelectSuggestionBoxCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <RadioButton Name="rd1" Content="Google Search" IsChecked="{Binding IsGoogleSearchSelected}"/>
+                <RadioButton Name="rd2" Content="Medicine Search" IsChecked="{Binding IsNLMSearchSelected}"/>
+            </StackPanel>
+            <Canvas>
+                <ListBox x:Name="listSuggestion" Canvas.Left="222" Panel.ZIndex="12"  Focusable="True" 
+                         TabIndex="2" BorderThickness="0" SelectionMode="Single" Grid.Row="0" Grid.Column="0" 
+    				Width="247" Height="150" ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+    				ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" 
+    				ItemsSource="{Binding SuggestData}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedSuggest, Mode=TwoWay}"
+    				Visibility="{Binding IsSuggestVisible, Converter={StaticResource boolToVisConv}, Mode=OneWay}"/>
+                <ListView TabIndex="3" x:Name="listV" Canvas.Left="0" Panel.ZIndex="5" BorderThickness="0" Focusable="False" Grid.Row="0" Grid.Column="0" 
+    				Width="679" Height="383"
+    				ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True"
+    				ItemsSource="{Binding FeedData}" ItemTemplate="{StaticResource listViewTemplate}">
+                    <ListView.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding DataContext.ShowResultsCommand, ElementName=wnd1}"/>
+                    </ListView.InputBindings>
+                </ListView>
+            </Canvas>
+
+        </StackPanel>
+        <StackPanel VerticalAlignment="Bottom">
+        <StatusBar Height="32" x:Name="statusBar1" VerticalAlignment="Bottom" 
+                   Visibility="{Binding IsStatusBarVisible, Converter={StaticResource boolToVisConv}}">
+            <Label Content="Loading"/>
+            <ProgressBar Height="20" Width="200" IsIndeterminate="True" Value="100"/>
+        </StatusBar>
+        <StatusBar Height="32" x:Name="statusBar2" VerticalAlignment="Bottom" Background="LemonChiffon"
+                   Visibility="{Binding IsMessagePanelVisible, Converter={StaticResource boolToVisConv}}">
+            <Label Content="{Binding Message}"/>
+        </StatusBar>
+        </StackPanel>
+    </Grid>
+</Window>
